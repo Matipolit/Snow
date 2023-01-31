@@ -1,6 +1,6 @@
 # Snow
 TUI snow animation using Ncurses
-## Compile & Install
+## Compile & Run
 Run `./build.sh` to compile with GCC. Run the executable with `./Snow`
 ## Options
 Use a number as a command line argument to customize the number of snow particles.  
