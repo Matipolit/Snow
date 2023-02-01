@@ -17,6 +17,6 @@ class Particle{
     int getx();
     int gety();
     void move();
-    void respawn(int begX);
+    void respawn(int begX, int begY);
 };
 #endif

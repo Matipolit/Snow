@@ -46,8 +46,8 @@ void Particle::move(){
   }
 }
 
-void Particle::respawn(int begX){
+void Particle::respawn(int begX, int begY){
   x = begX;
-  y = 0;
+  y = begY;
   timeSinceLastSwing = 0;
 }

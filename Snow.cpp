@@ -1,3 +1,4 @@
+#include <csignal>
 #include <ncurses.h>
 #include <unistd.h>
 #include <vector>
@@ -6,26 +7,41 @@
 #define DELAY 30000
 int snowflakeAmount = 300;
 int maxX = 0, maxY = 0;
+std::vector<Particle> particles;
 
-void initParticles(std::vector<Particle>* particles){
+void initParticles(){
 	for(int i = 0; i < snowflakeAmount; i++){
-		particles->push_back(Particle(rand() % maxX, rand() % maxY));
+		particles.push_back(Particle(rand() % maxX, rand() % maxY));
 	}
 }
 
-void printParticles(std::vector<Particle>* particles){
+void randomizeHeight(){
 	for(int i = 0; i < snowflakeAmount; i++){
-		mvprintw(particles->at(i).gety(), particles->at(i).getx(), "*");
+		int x = particles.at(i).getx();
+		particles.at(i).respawn(x, rand() % maxY);
 	}
 }
 
-void updatePositionsAndRespawnStale(std::vector<Particle>* particles){
+void printParticles(){
+	for(int i = 0; i < snowflakeAmount; i++){
+		mvprintw(particles.at(i).gety(), particles.at(i).getx(), "*");
+	}
+}
+
+void updatePositionsAndRespawnStale(){
 	for(int i = 0; i < snowflakeAmount ; i++){
-		particles->at(i).move();
-		if(particles->at(i).gety()>maxY){
-			particles->at(i).respawn(rand() % maxX) ;
+		particles.at(i).move();
+		if(particles.at(i).gety()>maxY){
+			particles.at(i).respawn(rand() % maxX, 0) ;
 		}
 	}
+}
+
+void do_resize(int signal){
+	endwin();
+	refresh();
+	getmaxyx(stdscr, maxY, maxX);
+	randomizeHeight();
 }
 
 int main(int argc, char** argv){
@@ -36,7 +52,6 @@ int main(int argc, char** argv){
 		snowflakeAmount = atoi(argv[1]);
 	}
 	
-	std::vector<Particle> particles;
 
 	initscr();
 	noecho();
@@ -44,16 +59,17 @@ int main(int argc, char** argv){
 
 	getmaxyx(stdscr, maxY, maxX);
 
-	initParticles(&particles);
+	initParticles();
 	clear();
-	printParticles(&particles);	
+	printParticles();	
 	refresh();
-
+	std::signal(SIGWINCH, do_resize);
+	
 	while(true){
 		clear();
-		printParticles(&particles);
+		printParticles();
 		refresh();
-		updatePositionsAndRespawnStale(&particles);
+		updatePositionsAndRespawnStale();
 		usleep(DELAY);
 	}
 
